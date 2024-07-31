@@ -4,7 +4,7 @@ import os
 from gtts import gTTS
 from dotenv import load_dotenv
 import os
-from model import VoiceInput
+from model import ImageInput, VoiceInput
 
 load_dotenv()
 
@@ -28,7 +28,7 @@ voiceRouter = APIRouter()
 
 
 @voiceRouter.post("/voice")
-async def postVoice(voiceInput: VoiceInput) -> dict:
+async def postCameraImage(voiceInput: VoiceInput, imageInput: ImageInput) -> dict:
     global fileName
     fileName += 1
     payload = {
@@ -36,7 +36,16 @@ async def postVoice(voiceInput: VoiceInput) -> dict:
         "messages": [
             {
                 "role": "user",
-                "content": f"저번 답변은 {voiceInput.prevText}이거였어. 그리고 지금 질문은 '{voiceInput.reqText}'야 이 질문에 대해 답변해줘.",
+                "content": f"함께 첨부한 이미지는 지난 대화에서 사용한 사진이야. 그리고 이전 답변은 {voiceInput.prevText}이거였어. 그리고 지금 질문은 '{voiceInput.reqText}'야. 이 질문에 대해 답변 가능하면 100자 이내로 대화하듯 설명해줘. ",
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": imageInput.image},  # base64 문자열 사용
+                    }
+                ],
             },
         ],
         "max_tokens": 1000,

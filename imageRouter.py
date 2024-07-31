@@ -74,10 +74,7 @@ async def postWebviewTotallyBlind(imageInput: ImageInput) -> dict:
     payload = {
         "model": "gpt-4o",
         "messages": [
-            {
-                "role": "user",
-                "content": "사진에 대해 200자 이내로 설명해줘.",
-            },
+            {"role": "user", "content": "사진에 대해 100자 이내로 대화하듯 설명해줘"},
             {
                 "role": "user",
                 "content": [
@@ -113,10 +110,7 @@ async def postWebviewLowVision(imageInput: ImageInput) -> dict:
     payload = {
         "model": "gpt-4o",
         "messages": [
-            {
-                "role": "user",
-                "content": "사진에 대해 200자 이내로 설명해줘.",
-            },
+            {"role": "user", "content": "사진에 대해 100자 이내로 대화하듯 설명해줘"},
             {
                 "role": "user",
                 "content": [
