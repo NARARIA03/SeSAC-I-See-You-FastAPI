@@ -28,7 +28,7 @@ voiceRouter = APIRouter()
 
 
 @voiceRouter.post("/voice")
-async def postCameraImage(voiceInput: VoiceInput) -> dict:
+async def postVoice(voiceInput: VoiceInput) -> dict:
     global fileName
     fileName += 1
     payload = {
@@ -37,10 +37,6 @@ async def postCameraImage(voiceInput: VoiceInput) -> dict:
             {
                 "role": "user",
                 "content": f"저번 답변은 {voiceInput.prevText}이거였어. 그리고 지금 질문은 '{voiceInput.reqText}'야 이 질문에 대해 답변해줘.",
-            },
-            {
-                "role": "user",
-                "content": [],
             },
         ],
         "max_tokens": 1000,

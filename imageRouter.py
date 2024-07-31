@@ -1,10 +1,6 @@
 from fastapi import APIRouter
-import base64
 import requests
 import os
-from PIL import Image
-from io import BytesIO
-import matplotlib.pyplot as plt
 from gtts import gTTS
 from dotenv import load_dotenv
 import os
