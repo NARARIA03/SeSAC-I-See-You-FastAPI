@@ -68,13 +68,13 @@ async def postCameraImage(imageInput: ImageInput) -> dict:
     else:
         try:
             content = response.json()["choices"][0]["message"]["content"]
-            text_to_speech(content, f"./mp3/{fileName}.mp3")
+            text_to_speech(content, f"./mp3/image/{fileName}.mp3")
             speedup_tts(
-                f"./mp3/{fileName}.mp3",
-                f"./mp3/{fileName}.mp3",
+                f"./mp3/image/{fileName}.mp3",
+                f"./mp3/image/{fileName}.mp3",
                 float(imageInput.ttsSpeed),
             )
-            return {"msg": content, "mp3": f"/mp3/{fileName}"}
+            return {"msg": content, "mp3": f"/mp3/image/{fileName}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}
 
@@ -112,13 +112,13 @@ async def postWebviewTotallyBlind(imageInput: ImageInput) -> dict:
     else:
         try:
             content = response.json()["choices"][0]["message"]["content"]
-            text_to_speech(content, f"./mp3/{fileName}.mp3")
+            text_to_speech(content, f"./mp3/image/{fileName}.mp3")
             speedup_tts(
-                f"./mp3/{fileName}.mp3",
-                f"./mp3/{fileName}.mp3",
+                f"./mp3/image/{fileName}.mp3",
+                f"./mp3/image/{fileName}.mp3",
                 float(imageInput.ttsSpeed),
             )
-            return {"msg": content, "mp3": f"/mp3/{fileName}"}
+            return {"msg": content, "mp3": f"/mp3/image/{fileName}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}
 
@@ -156,12 +156,12 @@ async def postWebviewLowVision(imageInput: ImageInput) -> dict:
     else:
         try:
             content = response.json()["choices"][0]["message"]["content"]
-            text_to_speech(content, f"./mp3/{fileName}.mp3")
+            text_to_speech(content, f"./mp3/image/{fileName}.mp3")
             speedup_tts(
-                f"./mp3/{fileName}.mp3",
-                f"./mp3/{fileName}.mp3",
+                f"./mp3/image/{fileName}.mp3",
+                f"./mp3/image/{fileName}.mp3",
                 float(imageInput.ttsSpeed),
             )
-            return {"msg": content, "mp3": f"/mp3/{fileName}"}
+            return {"msg": content, "mp3": f"/mp3/image/{fileName}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}

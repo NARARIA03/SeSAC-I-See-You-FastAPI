@@ -14,7 +14,7 @@ load_dotenv()
 
 API_KEY = os.environ.get("API_KEY")
 
-fileName = 10000000
+fileName = 1
 
 
 def text_to_speech(text, filename):
@@ -72,12 +72,12 @@ async def postCameraImage(voiceInput: VoiceInput) -> dict:
     else:
         try:
             content = response.json()["choices"][0]["message"]["content"]
-            text_to_speech(content, f"./mp3/{fileName}.mp3")
+            text_to_speech(content, f"./mp3/voice/{fileName}.mp3")
             speedup_tts(
-                f"./mp3/{fileName}.mp3",
-                f"./mp3/{fileName}.mp3",
+                f"./mp3/voice/{fileName}.mp3",
+                f"./mp3/voice/{fileName}.mp3",
                 float(voiceInput.ttsSpeed),
             )
-            return {"msg": content, "mp3": f"/mp3/{fileName}"}
+            return {"msg": content, "mp3": f"/mp3/voice/{fileName}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}
