@@ -5,6 +5,8 @@ from gtts import gTTS
 from dotenv import load_dotenv
 import os
 from model import ImageInput
+from pydub import AudioSegment
+
 
 load_dotenv()
 
@@ -17,7 +19,13 @@ def text_to_speech(text, filename):
     """gTTS를 사용하여 텍스트를 음성으로 변환합니다."""
     tts = gTTS(text=text, lang="ko")
     tts.save(filename)
-    os.system(f"mpg321 {filename}")
+
+
+# 원본 파일을 다양한 속도로 변환하는 함수
+def speedup_tts(original_filename, output_filename, speed):
+    sound = AudioSegment.from_file(original_filename, format="mp3")
+    sound_with_speed = sound.speedup(playback_speed=speed)
+    sound_with_speed.export(output_filename, format="mp3")
 
 
 headers = {"Content-Type": "application/json", "Authorization": f"Bearer {API_KEY}"}
@@ -37,7 +45,7 @@ async def postCameraImage(imageInput: ImageInput) -> dict:
         "messages": [
             {
                 "role": "user",
-                "content": "시각장애인에게 이 사진에 대해 100자 이내로 설명해줘. 어떤 위치에 어떤 물체가 있는지, 무엇을 조심해야하는지에 중점을 두고 설명해줘.",
+                "content": "시각장애인에게 이 사진에 대해 100자 이내로 너가 앞이 안 보인다고 생각하고 존댓말로 설명해줘.",
             },
             {
                 "role": "user",
@@ -61,7 +69,12 @@ async def postCameraImage(imageInput: ImageInput) -> dict:
         try:
             content = response.json()["choices"][0]["message"]["content"]
             text_to_speech(content, f"./mp3/{fileName}.mp3")
-            return {"msg": content, "mp3": f"/mp3/{fileName}"}
+            speedup_tts(
+                f"./mp3/{fileName}.mp3",
+                f"./mp3/{fileName * 10}.mp3",
+                float(imageInput.ttsSpeed),
+            )
+            return {"msg": content, "mp3": f"/mp3/{fileName * 10}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}
 
@@ -74,7 +87,10 @@ async def postWebviewTotallyBlind(imageInput: ImageInput) -> dict:
     payload = {
         "model": "gpt-4o",
         "messages": [
-            {"role": "user", "content": "사진에 대해 100자 이내로 대화하듯 설명해줘"},
+            {
+                "role": "user",
+                "content": "답변을 받는 사람은 전맹 시각 장애가 있어. 사진에 대해 100자 이내로 대화하듯 존댓말로 설명해줘",
+            },
             {
                 "role": "user",
                 "content": [
@@ -97,7 +113,12 @@ async def postWebviewTotallyBlind(imageInput: ImageInput) -> dict:
         try:
             content = response.json()["choices"][0]["message"]["content"]
             text_to_speech(content, f"./mp3/{fileName}.mp3")
-            return {"msg": content, "mp3": f"/mp3/{fileName}"}
+            speedup_tts(
+                f"./mp3/{fileName}.mp3",
+                f"./mp3/{fileName * 10}.mp3",
+                float(imageInput.ttsSpeed),
+            )
+            return {"msg": content, "mp3": f"/mp3/{fileName * 10}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}
 
@@ -110,7 +131,10 @@ async def postWebviewLowVision(imageInput: ImageInput) -> dict:
     payload = {
         "model": "gpt-4o",
         "messages": [
-            {"role": "user", "content": "사진에 대해 100자 이내로 대화하듯 설명해줘"},
+            {
+                "role": "user",
+                "content": "답변을 받는 사람은 저시력 장애가 있어. 사진에 대해 100자 이내로 대화하듯 존댓말로 설명해줘",
+            },
             {
                 "role": "user",
                 "content": [
@@ -133,6 +157,11 @@ async def postWebviewLowVision(imageInput: ImageInput) -> dict:
         try:
             content = response.json()["choices"][0]["message"]["content"]
             text_to_speech(content, f"./mp3/{fileName}.mp3")
-            return {"msg": content, "mp3": f"/mp3/{fileName}"}
+            speedup_tts(
+                f"./mp3/{fileName}.mp3",
+                f"./mp3/{fileName * 10}.mp3",
+                float(imageInput.ttsSpeed),
+            )
+            return {"msg": content, "mp3": f"/mp3/{fileName * 10}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}
