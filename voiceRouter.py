@@ -75,9 +75,9 @@ async def postCameraImage(voiceInput: VoiceInput) -> dict:
             text_to_speech(content, f"./mp3/{fileName}.mp3")
             speedup_tts(
                 f"./mp3/{fileName}.mp3",
-                f"./mp3/{fileName * 10}.mp3",
+                f"./mp3/{fileName}.mp3",
                 float(voiceInput.ttsSpeed),
             )
-            return {"msg": content, "mp3": f"/mp3/{fileName * 10}"}
+            return {"msg": content, "mp3": f"/mp3/{fileName}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}
