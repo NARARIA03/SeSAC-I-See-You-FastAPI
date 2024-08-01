@@ -1,10 +1,6 @@
 from fastapi import APIRouter
-import base64
 import requests
 import os
-from PIL import Image
-from io import BytesIO
-import matplotlib.pyplot as plt
 from gtts import gTTS
 from dotenv import load_dotenv
 import os
@@ -15,12 +11,6 @@ load_dotenv()
 API_KEY = os.environ.get("API_KEY")
 
 fileName = 1
-
-
-# 이미지를 base64로 인코딩하는 함수
-def encode_image(image_path):
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode("utf-8")
 
 
 def text_to_speech(text, filename):
@@ -45,13 +35,16 @@ async def postCameraImage(imageInput: ImageInput) -> dict:
     payload = {
         "model": "gpt-4o",
         "messages": [
-            {"role": "user", "content": "이 사진에 대해 설명해줘"},
+            {
+                "role": "user",
+                "content": "시각장애인에게 이 사진에 대해 100자 이내로 설명해줘. 어떤 위치에 어떤 물체가 있는지, 무엇을 조심해야하는지에 중점을 두고 설명해줘.",
+            },
             {
                 "role": "user",
                 "content": [
                     {
                         "type": "image_url",
-                        "image_url": {"url": imageInput.image},  # base64 문자열 사용
+                        "image_url": {"url": imageInput.image},
                     }
                 ],
             },
@@ -62,15 +55,12 @@ async def postCameraImage(imageInput: ImageInput) -> dict:
     response = requests.post(
         "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
     )
-
     if response.status_code != 200:
         return {"msg": response.status_code, "mp3": ""}
     else:
         try:
             content = response.json()["choices"][0]["message"]["content"]
             text_to_speech(content, f"./mp3/{fileName}.mp3")
-            # 응답 출력
-            print(content)
             return {"msg": content, "mp3": f"/mp3/{fileName}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}
@@ -78,11 +68,71 @@ async def postCameraImage(imageInput: ImageInput) -> dict:
 
 # 전맹 시각 장애인 웹뷰
 @imageRouter.post("/webviewimage/totallyblind")
-async def postWebviewTotallyBlind() -> dict:
-    return {}
+async def postWebviewTotallyBlind(imageInput: ImageInput) -> dict:
+    global fileName
+    fileName += 1
+    payload = {
+        "model": "gpt-4o",
+        "messages": [
+            {"role": "user", "content": "사진에 대해 100자 이내로 대화하듯 설명해줘"},
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": imageInput.image},
+                    }
+                ],
+            },
+        ],
+        "max_tokens": 1000,
+    }
+
+    response = requests.post(
+        "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
+    )
+    if response.status_code != 200:
+        return {"msg": response.status_code, "mp3": ""}
+    else:
+        try:
+            content = response.json()["choices"][0]["message"]["content"]
+            text_to_speech(content, f"./mp3/{fileName}.mp3")
+            return {"msg": content, "mp3": f"/mp3/{fileName}"}
+        except KeyError as e:
+            return {"msg": e, "mp3": ""}
 
 
 # 저시력 시각 장애인 웹뷰
 @imageRouter.post("/webviewimage/lowvision")
-async def postWebviewLowVision() -> dict:
-    return {}
+async def postWebviewLowVision(imageInput: ImageInput) -> dict:
+    global fileName
+    fileName += 1
+    payload = {
+        "model": "gpt-4o",
+        "messages": [
+            {"role": "user", "content": "사진에 대해 100자 이내로 대화하듯 설명해줘"},
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": imageInput.image},
+                    }
+                ],
+            },
+        ],
+        "max_tokens": 1000,
+    }
+
+    response = requests.post(
+        "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
+    )
+    if response.status_code != 200:
+        return {"msg": response.status_code, "mp3": ""}
+    else:
+        try:
+            content = response.json()["choices"][0]["message"]["content"]
+            text_to_speech(content, f"./mp3/{fileName}.mp3")
+            return {"msg": content, "mp3": f"/mp3/{fileName}"}
+        except KeyError as e:
+            return {"msg": e, "mp3": ""}
