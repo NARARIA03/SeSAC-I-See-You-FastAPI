@@ -27,15 +27,27 @@ def text_to_speech(text, filename):
 
 # base64 문자열을 이미지로 변환하는 함수
 def base64_to_image(base64_string):
-    img_data = base64.b64decode(base64_string)
-    image = Image.open(io.BytesIO(img_data))
-    return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    try:
+        img_data = base64.b64decode(base64_string)
+        image = Image.open(io.BytesIO(img_data))
+        return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+    except Exception as e:
+        print(f"Error decoding base64 string: {e}")
+        raise
 
 
 # 이미지를 base64로 변환하는 함수
 def image_to_base64(image):
     _, buffer = cv2.imencode(".png", cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
     return base64.b64encode(buffer).decode("utf-8")
+
+
+# 앞에 메타마크 떼는 함수
+def clean_base64_string(base64_string: str) -> str:
+    parts = base64_string.split(",", 1)
+    if len(parts) == 2:
+        return parts[0], parts[1]
+    return base64_string
 
 
 # 릴루미노 모드 (저시력)
@@ -92,7 +104,6 @@ def process_image_base64(encoded_image) -> str:
     corrected_image = daltonize(image)
     corrected_image_bgr = (corrected_image * 255).astype(np.uint8)
     encoded_corrected_image = image_to_base64(corrected_image_bgr)
-
     return encoded_corrected_image
 
 
@@ -131,7 +142,7 @@ async def postCameraImage(imageInput: ImageInput) -> dict:
         "messages": [
             {
                 "role": "user",
-                "content": "시각장애인에게 이 사진에 대해 100자 이내로 설명해줘. 어떤 위치에 어떤 물체가 있는지, 무엇을 조심해야하는지에 중점을 두고 설명해줘.",
+                "content": "시각장애인에게 이 사진에 대해 100자 이내로 너가 앞이 안 보인다고 생각하고 존댓말로 설명해줘.",
             },
             {
                 "role": "user",
@@ -156,17 +167,22 @@ async def postCameraImage(imageInput: ImageInput) -> dict:
             imgBase64 = ""
             if imageInput.displayMode == "general":
                 imgBase64 = imageInput.image
+
             elif imageInput.displayMode == "lowVision":
-                img = base64_to_image(imageInput.image)
+                metaTag, cleanedBase64 = clean_base64_string(imageInput.image)
+                img = base64_to_image(cleanedBase64)
                 adj = relumino_mode(img)
-                imgBase64 = image_to_base64(adj)
+                imgBase64 = metaTag + "," + image_to_base64(adj)
+
             elif imageInput.displayMode == "redGreenColorBlind":
-                img = base64_to_image(imageInput.image)
-                imgBase64 = process_image_base64(img)
+                metaTag, cleanedBase64 = clean_base64_string(imageInput.image)
+                imgBase64 = metaTag + "," + process_image_base64(cleanedBase64)
+
             elif imageInput.displayMode == "totallyColorBlind":
-                img = base64_to_image(imageInput.image)
+                metaTag, cleanedBase64 = clean_base64_string(imageInput.image)
+                img = base64_to_image(cleanedBase64)
                 adj = gray_scale(img)
-                imgBase64 = image_to_base64(adj)
+                imgBase64 = metaTag + "," + image_to_base64(adj)
 
             content = response.json()["choices"][0]["message"]["content"]
             text_to_speech(content, f"./mp3/{fileName}.mp3")
@@ -183,7 +199,10 @@ async def postWebviewTotallyBlind(imageInput: ImageInput) -> dict:
     payload = {
         "model": "gpt-4o",
         "messages": [
-            {"role": "user", "content": "사진에 대해 100자 이내로 대화하듯 설명해줘"},
+            {
+                "role": "user",
+                "content": "답변을 받는 사람은 전맹 시각 장애가 있어. 사진에 대해 100자 이내로 대화하듯 존댓말로 설명해줘",
+            },
             {
                 "role": "user",
                 "content": [
@@ -219,7 +238,10 @@ async def postWebviewLowVision(imageInput: ImageInput) -> dict:
     payload = {
         "model": "gpt-4o",
         "messages": [
-            {"role": "user", "content": "사진에 대해 100자 이내로 대화하듯 설명해줘"},
+            {
+                "role": "user",
+                "content": "답변을 받는 사람은 저시력 장애가 있어. 사진에 대해 100자 이내로 대화하듯 존댓말로 설명해줘",
+            },
             {
                 "role": "user",
                 "content": [
@@ -243,17 +265,22 @@ async def postWebviewLowVision(imageInput: ImageInput) -> dict:
             imgBase64 = ""
             if imageInput.displayMode == "general":
                 imgBase64 = imageInput.image
+
             elif imageInput.displayMode == "lowVision":
-                img = base64_to_image(imageInput.image)
+                metaTag, cleanedBase64 = clean_base64_string(imageInput.image)
+                img = base64_to_image(cleanedBase64)
                 adj = relumino_mode(img)
-                imgBase64 = image_to_base64(adj)
+                imgBase64 = metaTag + "," + image_to_base64(adj)
+
             elif imageInput.displayMode == "redGreenColorBlind":
-                img = base64_to_image(imageInput.image)
-                imgBase64 = process_image_base64(img)
+                metaTag, cleanedBase64 = clean_base64_string(imageInput.image)
+                imgBase64 = metaTag + "," + process_image_base64(cleanedBase64)
+
             elif imageInput.displayMode == "totallyColorBlind":
-                img = base64_to_image(imageInput.image)
+                metaTag, cleanedBase64 = clean_base64_string(imageInput.image)
+                img = base64_to_image(cleanedBase64)
                 adj = gray_scale(img)
-                imgBase64 = image_to_base64(adj)
+                imgBase64 = metaTag + "," + image_to_base64(adj)
 
             content = response.json()["choices"][0]["message"]["content"]
             text_to_speech(content, f"./mp3/{fileName}.mp3")
