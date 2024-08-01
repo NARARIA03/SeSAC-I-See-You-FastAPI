@@ -28,7 +28,7 @@ voiceRouter = APIRouter()
 
 
 @voiceRouter.post("/voice")
-async def postCameraImage(voiceInput: VoiceInput, imageInput: ImageInput) -> dict:
+async def postCameraImage(voiceInput: VoiceInput) -> dict:
     global fileName
     fileName += 1
     payload = {
@@ -43,7 +43,9 @@ async def postCameraImage(voiceInput: VoiceInput, imageInput: ImageInput) -> dic
                 "content": [
                     {
                         "type": "image_url",
-                        "image_url": {"url": imageInput.image},  # base64 문자열 사용
+                        "image_url": {
+                            "url": voiceInput.prevImage
+                        },  # base64 문자열 사용
                     }
                 ],
             },
