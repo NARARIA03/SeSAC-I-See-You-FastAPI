@@ -6,10 +6,12 @@ WORKDIR /app/
 # 애플리케이션 소스 복사
 COPY . /app/
 
-# ffmpeg 설치
-RUN apt-get update && apt-get install -y ffmpeg
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# 파이썬 패키지 설치
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 # 포트 노출
