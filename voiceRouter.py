@@ -20,8 +20,10 @@ voiceRouter = APIRouter()
 @voiceRouter.post("/voice")
 async def postCameraImage(voiceInput: VoiceInput) -> dict:
     global fileName
+    fileName += 1
     try:
-        content = "정상적으로 요청이 완료되었어요."
+        content = f"voice 엔드포인트 정상 응답 완료 {fileName}"
+        text_to_speech(content, f"./mp3/{fileName}.mp3")
         return {"msg": content, "mp3": f"/mp3/{fileName}"}
     except KeyError as e:
         return {"msg": e, "mp3": ""}

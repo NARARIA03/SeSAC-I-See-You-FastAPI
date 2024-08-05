@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from gtts import gTTS
-from model import ImageInput
+from model import ImageInput, TotallyBlindImageInput
 import cv2
 import numpy as np
 import base64
@@ -146,9 +146,11 @@ imageRouter = APIRouter()
 @imageRouter.post("/cameraimage")
 async def postCameraImage(imageInput: ImageInput) -> dict:
     global fileName
+    fileName += 1
     try:
         imgBase64 = return_new_image(imageInput)
-        content = "정상적으로 요청이 완료되었어요."
+        content = f"cameraimage 엔드포인트 정상 응답 완료 {fileName}"
+        text_to_speech(content, f"./mp3/{fileName}.mp3")
         return {"msg": content, "mp3": f"/mp3/{fileName}", "image": imgBase64}
     except KeyError as e:
         return {"msg": e, "mp3": "", "image": ""}
@@ -156,10 +158,12 @@ async def postCameraImage(imageInput: ImageInput) -> dict:
 
 # 전맹 시각 장애인 웹뷰
 @imageRouter.post("/webviewimage/totallyblind")
-async def postWebviewTotallyBlind(imageInput: ImageInput) -> dict:
+async def postWebviewTotallyBlind(imageInput: TotallyBlindImageInput) -> dict:
     global fileName
+    fileName += 1
     try:
-        content = "정상적으로 요청이 완료되었어요."
+        content = f"totallyblind 엔드포인트 정상 응답 완료 {fileName}"
+        text_to_speech(content, f"./mp3/{fileName}.mp3")
         return {"msg": content, "mp3": f"/mp3/{fileName}"}
     except KeyError as e:
         return {"msg": e, "mp3": ""}
@@ -169,9 +173,11 @@ async def postWebviewTotallyBlind(imageInput: ImageInput) -> dict:
 @imageRouter.post("/webviewimage/lowvision")
 async def postWebviewLowVision(imageInput: ImageInput) -> dict:
     global fileName
+    fileName += 1
     try:
         imgBase64 = return_new_image(imageInput)
-        content = "정상적으로 요청이 완료되었어요."
+        content = f"lowvision 엔드포인트 정상 응답 완료 {fileName}"
+        text_to_speech(content, f"./mp3/{fileName}.mp3")
         return {"msg": content, "mp3": f"/mp3/{fileName}", "image": imgBase64}
     except KeyError as e:
         return {"msg": e, "mp3": "", "image": ""}

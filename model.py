@@ -13,6 +13,10 @@ class ImageInput(BaseModel):
     ]
     ttsSpeed: Literal["1.0", "1.25", "1.5", "1.75", "2.0"]
 
+class TotallyBlindImageInput(BaseModel):
+    image: str
+    ttsSpeed: Literal["1.0", "1.25", "1.5", "1.75", "2.0"]
+
 
 class VoiceInput(BaseModel):
     reqText: str
