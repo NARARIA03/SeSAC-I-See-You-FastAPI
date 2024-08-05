@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import base64
 import io
-from PIL import Image
+from PIL import Image, ExifTags
 
 
 fileName = 1
@@ -22,6 +22,20 @@ def base64_to_image(base64_string):
     try:
         img_data = base64.b64decode(base64_string)
         image = Image.open(io.BytesIO(img_data))
+        # 촬영한 이미지는 EXIF 정보로 정위값을 잡음, 이를 무시하면 회전된 사진을 다루게 되므로 이를 기준으로 회전시키는 코드
+        if hasattr(image, '_getexif'):
+                exif = image._getexif()
+                if exif:
+                    for orientation in ExifTags.TAGS.keys():
+                        if ExifTags.TAGS[orientation] == 'Orientation':
+                            break
+                    e = exif.get(orientation, 1)
+                    if e == 3:
+                        image = image.rotate(180, expand=True)
+                    elif e == 6:
+                        image = image.rotate(270, expand=True)
+                    elif e == 8:
+                        image = image.rotate(90, expand=True)
         return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
     except Exception as e:
         print(f"Error decoding base64 string: {e}")
