@@ -24,11 +24,11 @@ def text_to_speech(text, filename):
     tts.save(filename)
 
 
-# 원본 파일을 다양한 속도로 변환하는 함수
-def speedup_tts(original_filename, output_filename, speed):
-    sound = AudioSegment.from_file(original_filename, format="mp3")
-    sound_with_speed = sound.speedup(playback_speed=speed)
-    sound_with_speed.export(output_filename, format="mp3")
+# # 원본 파일을 다양한 속도로 변환하는 함수
+# def speedup_tts(original_filename, output_filename, speed):
+#     sound = AudioSegment.from_file(original_filename, format="mp3")
+#     sound_with_speed = sound.speedup(playback_speed=speed)
+#     sound_with_speed.export(output_filename, format="mp3")
 
 
 # base64 문자열을 이미지로 변환하는 함수
@@ -245,11 +245,11 @@ async def postWebviewTotallyBlind(imageInput: ImageInput) -> dict:
         try:
             content = response.json()["choices"][0]["message"]["content"]
             text_to_speech(content, f"./mp3/image/{fileName}.mp3")
-            speedup_tts(
-                f"./mp3/image/{fileName}.mp3",
-                f"./mp3/image/{fileName}.mp3",
-                float(imageInput.ttsSpeed),
-            )
+            # speedup_tts(
+            #     f"./mp3/image/{fileName}.mp3",
+            #     f"./mp3/image/{fileName}.mp3",
+            #     float(imageInput.ttsSpeed),
+            # )
             return {"msg": content, "mp3": f"/mp3/image/{fileName}"}
         except KeyError as e:
             return {"msg": e, "mp3": ""}
